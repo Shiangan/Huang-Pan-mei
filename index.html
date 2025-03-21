@@ -29,13 +29,13 @@
 </audio>
 
 
-<audio id="background-music" src="願得一人心.mp4" autoplay muted playsinline></audio>
+<audio id="background-music" src="願得一人心.mp3" autoplay muted loop playsinline></audio>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     var audio = document.getElementById('background-music');
     audio.volume = 0;  // 初始音量設為 0
-    audio.muted = true;  // 靜音確保自動播放
+    audio.muted = true;  // 確保自動播放符合瀏覽器規則
 
     // 嘗試自動播放
     audio.play().catch(() => console.log('Autoplay blocked by browser'));
