@@ -29,11 +29,16 @@
 </audio>
 
 
+<audio id="background-music" src="願得一人心.mp4" autoplay muted playsinline></audio>
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     var audio = document.getElementById('background-music');
-    audio.volume = 0;  // 初始化音量為 0
-    audio.muted = true;  // 初始化為靜音，確保自動播放
+    audio.volume = 0;  // 初始音量設為 0
+    audio.muted = true;  // 靜音確保自動播放
+
+    // 嘗試自動播放
+    audio.play().catch(() => console.log('Autoplay blocked by browser'));
 
     // 恢復播放位置與狀態
     var savedTime = localStorage.getItem('audioCurrentTime');
@@ -42,32 +47,37 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     var isPlaying = localStorage.getItem('audioPlaying') === 'true';
     if (isPlaying) {
-        audio.play().then(() => audio.muted = true);
+        audio.play();
     }
 
+    // 定期儲存播放時間
     setInterval(function () {
         if (!audio.paused) {
             localStorage.setItem('audioCurrentTime', audio.currentTime);
         }
     }, 1000);
 
+    // 解除靜音並淡入音量
     function unmuteAudio() {
         if (audio.muted) {
             audio.muted = false;
             fadeInAudio();
-            document.removeEventListener('click', unmuteAudio);
-            document.removeEventListener('touchstart', unmuteAudio);
+            removeListeners();
         }
     }
 
-    document.addEventListener('click', unmuteAudio);
-    document.addEventListener('touchstart', unmuteAudio);
+    function removeListeners() {
+        document.removeEventListener('click', unmuteAudio);
+        document.removeEventListener('touchstart', unmuteAudio);
+        document.removeEventListener('keydown', unmuteAudio);
+    }
 
     function fadeInAudio() {
         let volume = 0;
-        const interval = setInterval(function() {
+        audio.volume = volume;
+        const interval = setInterval(() => {
             if (volume < 1) {
-                volume += 0.05;
+                volume = Math.min(volume + 0.05, 1);
                 audio.volume = volume;
             } else {
                 clearInterval(interval);
@@ -75,16 +85,17 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 200);
     }
 
-    audio.addEventListener('play', function () {
-        localStorage.setItem('audioPlaying', 'true');
-    });
+    // 設定互動事件解除靜音
+    document.addEventListener('click', unmuteAudio);
+    document.addEventListener('touchstart', unmuteAudio);
+    document.addEventListener('keydown', unmuteAudio);
 
-    audio.addEventListener('pause', function () {
-        localStorage.setItem('audioPlaying', 'false');
-    });
+    // 記錄播放狀態
+    audio.addEventListener('play', () => localStorage.setItem('audioPlaying', 'true'));
+    audio.addEventListener('pause', () => localStorage.setItem('audioPlaying', 'false'));
 });
 </script>
- 
+    
     <header>
         <img src="image/logo.png" alt="Logo" class="logo" loading="lazy">
         <h1>黃潘梅夫人 訃告</h1>
